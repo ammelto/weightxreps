@@ -105,7 +105,7 @@ class _BottomNavigationState extends State<BottomNavigation>
       ),
       new NavigationIconView(
         icon: const Icon(const IconData(0xe99e, fontFamily: 'icomoon')),
-        title: 'Rankings',
+        title: 'Personal Records',
         color: Colors.pink,
         vsync: this,
         content: new Rankings(color: Colors.pink)
@@ -159,25 +159,7 @@ class _BottomNavigationState extends State<BottomNavigation>
       appBar: new AppBar(
         backgroundColor: _navigationViews[_currentIndex]._color,
         title: new Text(_navigationViews[_currentIndex]._title),
-        actions: <Widget>[
-          new PopupMenuButton<BottomNavigationBarType>(
-            onSelected: (BottomNavigationBarType value) {
-              setState(() {
-                _type = value;
-              });
-            },
-            itemBuilder: (BuildContext context) => <PopupMenuItem<BottomNavigationBarType>>[
-              const PopupMenuItem<BottomNavigationBarType>(
-                value: BottomNavigationBarType.fixed,
-                child: const Text('Fixed'),
-              ),
-              const PopupMenuItem<BottomNavigationBarType>(
-                value: BottomNavigationBarType.shifting,
-                child: const Text('Shifting'),
-              )
-            ],
-          )
-        ],
+        automaticallyImplyLeading: false,
       ),
       body: _navigationViews[_currentIndex]._content,
       bottomNavigationBar: botNavBar,

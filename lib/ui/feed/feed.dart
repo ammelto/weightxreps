@@ -52,8 +52,9 @@ class _Feed extends State<Feed> with TickerProviderStateMixin {
   
   int calculateSize(Summary summary){
     int size = 50;
-    if(summary.comment != " " && summary.comment != "") size+= (summary.comment.length / 25).floor() * 5;
-    size += summary.workouts.length * 12;
+    if(summary.comment != " " && summary.comment != "") size+= (summary.comment.length / 25).ceil() * 5;
+    if(summary.workouts.length == 0) size+=5;
+    else size += summary.workouts.length * 12;
     return size;
   }
 
@@ -62,6 +63,28 @@ class _Feed extends State<Feed> with TickerProviderStateMixin {
       child: new Container(
         child: new Column(
           children: [
+            new Row(
+              children: <Widget>[
+                new Expanded(child:
+                new Container(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                    child: new Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        new Text(summary.name,
+                          style: new TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16.0
+                          ),
+                        ),
+                        getCountryFlag(summary.country),
+                      ],
+                    )
+                ),
+                ),
+              ],
+            ),
             new Row(
               children: <Widget>[
                 new Expanded(child:
@@ -76,90 +99,91 @@ class _Feed extends State<Feed> with TickerProviderStateMixin {
             new Row(
               children: <Widget>[
                 new Expanded(child:
-                  new Container(
-                      padding: const EdgeInsets.only(top: 8.0, left: 16.0, right: 16.0),
-                      child: new Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          new Text(summary.name,
-                            style: new TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          getCountryFlag(summary.country)
-                        ],
-                      )
-                  ),
-                ),
-              ],
-            ),
-            new Row(
-              children: <Widget>[
-                new Expanded(child:
-                  new Container(
-                    padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 16.0),
+                new Container(
+                    padding: const EdgeInsets.only(top: 8.0, left: 16.0, right: 16.0),
                     child: new Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        new Text(summary.age != null ? summary.age + " years" : "?",
-                          textAlign: TextAlign.end,
-                          style: new TextStyle(
-                            color: Colors.grey[500],
-                          ),
-                        ),
-                        new Text(summary.bodyweight != null ? summary.bodyweight + " kg" : "?",
-                          textAlign: TextAlign.end,
-                          style: new TextStyle(
-                            color: Colors.grey[500],
-                          ),
-                        ),
+                        getAge(summary.age),
+                        getBodyweight(summary.bodyweight),
                       ],
                     )
-                  ),
+                ),
                 ),
               ],
             ),
-            new Column(
-              children: <Widget>[
-                new Container(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                  child: new Text(
-                      summary.comment,
-                      softWrap: true,
-                      style: new TextStyle(
-                        fontStyle: FontStyle.italic
-                      ),
-                    ),
-                ),
-              ],
-            ),
+            getComment(summary.comment),
             generateBarbells(summary.workouts)
           ],
         ),
       ),
     );
   }
+
+  Widget getBodyweight(String bodyweight){
+    if(bodyweight != null){
+      return new Text(bodyweight + " kg",
+        textAlign: TextAlign.end,
+        style: new TextStyle(
+          color: Colors.grey[500],
+        ),
+      );
+    }else{
+      return new Container();
+    }
+  }
+
+  Widget getAge(String age){
+    if(age != null){
+      return new Text(age + " years",
+        textAlign: TextAlign.end,
+        style: new TextStyle(
+          color: Colors.grey[500],
+        ),
+      );
+    }else{
+      return new Container();
+    }
+  }
+
+  Widget getComment(String comment){
+    if(comment != "" && comment != " " && comment != null){
+      return new Column(
+        children: <Widget>[
+          new Container(
+            padding: const EdgeInsets.only(top: 8.0, left: 16.0, right: 16.0),
+            child: new Align(
+              alignment: Alignment.centerLeft,
+              child: new Text(
+                comment,
+                softWrap: true,
+              ),
+            )
+          ),
+        ],
+      );
+    }else{
+      return new Container();
+    }
+  }
   
   Widget getCountryFlag(String code){
     if(code != null){
       return new Image.network(
         "http://www.countryflags.io/" + code + "/flat/64.png", 
-        height: 16.0,
+        height: 20.0,
         alignment: Alignment.topRight,
       );
     }else{
-      return new Text("?",
-        style: new TextStyle(
-          color: Colors.grey[500],
-        ),
-      );
+      return new Container();
     }
   }
 
   Widget generateBarbells(List<Workout> workouts){
     List<Widget> widgets = new List();
+
+    widgets.add(new Divider());
 
     for(var workout in workouts){
       widgets.add(new Column(
@@ -210,10 +234,14 @@ class _Feed extends State<Feed> with TickerProviderStateMixin {
         ],
       ));
     }
-    
-    return new Column(
-      children: widgets,
-    );
+
+    if(widgets.length > 1){
+      return new Column(
+        children: widgets,
+      );
+    }else{
+      return new Container();
+    }
   }
 
 
