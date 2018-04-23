@@ -160,6 +160,7 @@ class _BottomNavigationState extends State<BottomNavigation>
         backgroundColor: _navigationViews[_currentIndex]._color,
         title: new Text(_navigationViews[_currentIndex]._title),
         automaticallyImplyLeading: false,
+        primary: true,
       ),
       body: _navigationViews[_currentIndex]._content,
       bottomNavigationBar: botNavBar,

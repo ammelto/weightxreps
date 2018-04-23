@@ -119,7 +119,7 @@ class StaggerAnimation extends StatelessWidget {
         communityApi.login(user, pass).then((bool isSuccess) {
           if(isSuccess){
             buttonController.forward();
-            Navigator.pushNamed(context, "/home");
+            Navigator.pushNamedAndRemoveUntil(context, "/home", (_) => false);
           }else{
             buttonController.reverse();
           }

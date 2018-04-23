@@ -4,6 +4,9 @@ import 'package:kinoweights/data/entities/summary.dart';
 import 'package:kinoweights/data/entities/workout.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:kinoweights/ui/widget/barbell.dart';
+import 'package:firebase_admob/firebase_admob.dart';
+
+final String APP_ID = "ca-app-pub-8793379595057143~1500432200";
 
 class Feed extends StatefulWidget {
   Feed({Key key, this.color}) : super(key: key);
@@ -16,13 +19,44 @@ class _Feed extends State<Feed> with TickerProviderStateMixin {
 
   var communityApi = new CommunityApi();
 
+  static final MobileAdTargetingInfo targetingInfo = MobileAdTargetingInfo(
+    testDevices: [APP_ID],
+    keywords: ['fit', 'workout', 'weights', 'gym']
+  );
+
+  BannerAd bannerAd;
+
+  BannerAd buildBanner(){
+    return BannerAd(
+      adUnitId: BannerAd.testAdUnitId,
+      size: AdSize.smartBanner,
+      listener: (MobileAdEvent event){
+        if(event == MobileAdEvent.loaded){
+          bannerAd..show();
+        }else if(event == MobileAdEvent.clicked){
+          print(event);
+        }
+      }
+    );
+  }
+
+  @override
+  void dispose() {
+    bannerAd.dispose();
+    super.dispose();
+  }
+
   @override
   void initState() {
-
+    FirebaseAdMob.instance.initialize(appId: FirebaseAdMob.testAppId);
+    bannerAd = buildBanner()..load();
   }
 
   @override
   Widget build(BuildContext context) {
+    bannerAd
+    ..load()
+    ..show(anchorOffset: 58.0);
     return new Scaffold(
       body: new Center(
         child: new FutureBuilder<List<Summary>>(
@@ -31,6 +65,7 @@ class _Feed extends State<Feed> with TickerProviderStateMixin {
             if (snapshot.hasData) {
               return new StaggeredGridView.countBuilder(
                 crossAxisCount: 100,
+                padding: const EdgeInsets.only(bottom: 58.0),
                 itemCount: snapshot.data.length,
                 itemBuilder: (BuildContext context, int index) => createCardFromSummary(snapshot.data[index]),
                 staggeredTileBuilder: (int index) =>
@@ -41,7 +76,6 @@ class _Feed extends State<Feed> with TickerProviderStateMixin {
             } else if (snapshot.hasError) {
               return new Text("${snapshot.error}");
             }
-
             // By default, show a loading spinner
             return new CircularProgressIndicator();
           },
