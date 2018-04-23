@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:kinoweights/data/entities/summary.dart';
 import 'package:crypto/crypto.dart';
 import 'package:kinoweights/apikeys.dart' show APIFY_KEY;
+import 'package:kinoweights/data/entities/user.dart';
 
 class CommunityApi{
 
@@ -37,8 +38,10 @@ class CommunityApi{
     var body = new Map<String, List<Map<String, String>>>();
     var cookies = new List<Map<String, String>>();
     var cookie = new Map<String, String>();
+    String token = md5.convert(Utf8Encoder().convert(user)).toString() + md5.convert(Utf8Encoder().convert(pass)).toString();
+
     cookie.putIfAbsent("name", () => "WXR_REMEMBER_ME_v2");
-    cookie.putIfAbsent("value", () => md5.convert(Utf8Encoder().convert(user)).toString() + md5.convert(Utf8Encoder().convert(pass)).toString());
+    cookie.putIfAbsent("value", () => token);
     cookie.putIfAbsent("domain", () => "weightxreps.net");
     cookies.add(cookie);
     body.putIfAbsent("cookies", () => cookies);
@@ -53,7 +56,7 @@ class CommunityApi{
     final isSuccess = (iterable['pageFunctionResult']['status'] == "SUCCESS");
 
     if(isSuccess){
-
+      //User user = new User(name: iterable['pageFunctionResult']['name'], token: token);
     }
 
     return (isSuccess);
