@@ -1,2 +1,0 @@
-const String APIFY_KEY = "CyNWfTpW8a7uYHB75me47CHpA";
-const String ADMOB_KEY = "ca-app-pub-8793379595057143~1500432200";
