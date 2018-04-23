@@ -5,8 +5,7 @@ import 'package:kinoweights/data/entities/workout.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:kinoweights/ui/widget/barbell.dart';
 import 'package:firebase_admob/firebase_admob.dart';
-
-final String APP_ID = "ca-app-pub-8793379595057143~1500432200";
+import 'package:kinoweights/apikeys.dart' show ADMOB_KEY;
 
 class Feed extends StatefulWidget {
   Feed({Key key, this.color}) : super(key: key);
@@ -20,7 +19,7 @@ class _Feed extends State<Feed> with TickerProviderStateMixin {
   var communityApi = new CommunityApi();
 
   static final MobileAdTargetingInfo targetingInfo = MobileAdTargetingInfo(
-    testDevices: [APP_ID],
+    testDevices: [ADMOB_KEY],
     keywords: ['fit', 'workout', 'weights', 'gym']
   );
 
