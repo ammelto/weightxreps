@@ -1,19 +1,14 @@
 import 'dart:async';
-
-import 'dart:io';
-
-import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:kinoweights/data/entities/user.dart';
 import 'baseprovider.dart';
 
 class UserProvider extends BaseProvider<User>{
 
-  final String tableUser = "user";
-  final String columnId = "_id";
-  final String columnName = "name";
-  final String columnToken = "token";
+  static final String tableUser = "user";
+  static final String columnId = "_id";
+  static final String columnName = "name";
+  static final String columnToken = "token";
 
   @override
   Future open() async {
@@ -30,20 +25,17 @@ class UserProvider extends BaseProvider<User>{
   }
 
   @override
-  Future<User> insert(User todo) async {
-    if(db == null){
-      //await open(path);
-    }
-    todo.id = await db.insert(tableUser, todo.toMap());
-    return todo;
+  Future<User> insert(User user) async {
+    user.id = await db.insert(tableUser, user.toMap());
+    return user;
   }
 
   @override
-  Future<User> query(int id) async {
+  Future<User> query(String key, String value) async {
     List<Map> maps = await db.query(tableUser,
         columns: [columnId, columnToken, columnName],
-        where: "$columnId = ?",
-        whereArgs: [id]);
+        where: "$key = ?",
+        whereArgs: [value]);
     if (maps.length > 0) {
       return new User.fromMap(maps.first);
     }
@@ -56,9 +48,9 @@ class UserProvider extends BaseProvider<User>{
   }
 
   @override
-  Future<int> update(User todo) async {
-    return await db.update(tableUser, todo.toMap(),
-        where: "$columnId = ?", whereArgs: [todo.id]);
+  Future<int> update(User user) async {
+    return await db.update(tableUser, user.toMap(),
+        where: "$columnId = ?", whereArgs: [user.id]);
   }
 
 }

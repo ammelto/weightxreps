@@ -5,8 +5,6 @@ import 'dart:io';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:kinoweights/data/entities/user.dart';
-
 
 abstract class BaseProvider<T> {
 
@@ -21,7 +19,7 @@ abstract class BaseProvider<T> {
 
   Future<T> insert(T entity);
 
-  Future<T> query(int id);
+  Future<T> query(String key, String value);
 
   Future<int> delete(int id);
 

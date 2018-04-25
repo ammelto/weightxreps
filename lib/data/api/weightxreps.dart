@@ -6,6 +6,7 @@ import 'package:kinoweights/data/entities/summary.dart';
 import 'package:crypto/crypto.dart';
 import 'package:kinoweights/apikeys.dart' show APIFY_KEY;
 import 'package:kinoweights/data/entities/user.dart';
+import 'package:kinoweights/data/providers/userprovider.dart';
 
 class CommunityApi{
 
@@ -32,6 +33,7 @@ class CommunityApi{
   }
 
   Future<bool> login(String user, String pass) async {
+    //return true;
     var headers = new Map<String, String>();
     headers.putIfAbsent("Content-Type", () => "application/json");
 
@@ -56,6 +58,10 @@ class CommunityApi{
     final isSuccess = (iterable['pageFunctionResult']['status'] == "SUCCESS");
 
     if(isSuccess){
+      UserProvider userProvider = new UserProvider();
+      await userProvider.open();
+      await userProvider.insert(User(name: iterable['pageFunctionResult']['name'], token: token, id: 0));
+      await userProvider.close();
       //User user = new User(name: iterable['pageFunctionResult']['name'], token: token);
     }
 

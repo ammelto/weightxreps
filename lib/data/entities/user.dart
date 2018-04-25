@@ -1,10 +1,4 @@
-import 'dart:async';
-
-import 'dart:io';
-
-import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:kinoweights/data/providers/userprovider.dart';
 import 'providedentity.dart';
 
 class User extends ProvidedEntity{
@@ -13,18 +7,20 @@ class User extends ProvidedEntity{
   String token;
 
   Map toMap() {
-    Map map = {columnName: name, columnToken: token};
+    Map map = new Map<String, dynamic>();
     if (id != null) {
-      map[columnId] = id;
+      map[UserProvider.columnId] = id;
+      map[UserProvider.columnToken] = token;
+      map[UserProvider.columnName] = name;
     }
     return map;
   }
 
-  User();
+  User({this.id, this.name, this.token});
 
   User.fromMap(Map map) {
-    id = map[columnId];
-    name = map[columnName];
-    token = map[columnToken];
+    id = map[UserProvider.columnId];
+    name = map[UserProvider.columnName];
+    token = map[UserProvider.columnToken];
   }
 }

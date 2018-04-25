@@ -5,31 +5,18 @@
 import 'package:flutter/material.dart';
 import 'package:kinoweights/ui/login/login.dart';
 import 'package:kinoweights/ui/navigation/navigation.dart';
+import 'package:kinoweights/ui/splash/splash.dart';
 
 void main() {
   new Routes();
 }
 
-class KinoWeightsApp extends StatelessWidget {
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return new MaterialApp(
-      title: 'KinoWeights',
-      theme: new ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: new BottomNavigation(),
-    );
-  }
-}
-
 class Routes {
   Routes() {
     runApp(new MaterialApp(
-      title: "Dribbble Animation App",
+      title: "Kinoweights",
       debugShowCheckedModeBanner: false,
-      home: new LoginScreen(),
+      home: new Splash(),
       onGenerateRoute: (RouteSettings settings) {
         switch (settings.name) {
           case '/login':

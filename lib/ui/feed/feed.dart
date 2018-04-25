@@ -3,7 +3,6 @@ import 'package:kinoweights/data/api/weightxreps.dart';
 import 'package:kinoweights/data/entities/summary.dart';
 import 'package:kinoweights/data/entities/workout.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:kinoweights/ui/widget/barbell.dart';
 import 'package:firebase_admob/firebase_admob.dart';
 import 'package:kinoweights/apikeys.dart' show ADMOB_KEY;
 
@@ -28,14 +27,7 @@ class _Feed extends State<Feed> with TickerProviderStateMixin {
   BannerAd buildBanner(){
     return BannerAd(
       adUnitId: BannerAd.testAdUnitId,
-      size: AdSize.smartBanner,
-      listener: (MobileAdEvent event){
-        if(event == MobileAdEvent.loaded){
-          bannerAd..show();
-        }else if(event == MobileAdEvent.clicked){
-          print(event);
-        }
-      }
+      size: AdSize.smartBanner
     );
   }
 
@@ -47,15 +39,20 @@ class _Feed extends State<Feed> with TickerProviderStateMixin {
 
   @override
   void initState() {
+    super.initState();
     FirebaseAdMob.instance.initialize(appId: FirebaseAdMob.testAppId);
     bannerAd = buildBanner()..load();
   }
 
   @override
   Widget build(BuildContext context) {
-    bannerAd
-    ..load()
-    ..show(anchorOffset: 58.0);
+    final double statusBarHeight = MediaQuery.of(context).padding.top;
+    final ScrollController scrollController = new ScrollController();
+    scrollController.addListener((){
+      if(scrollController.position.axisDirection == AxisDirection.down){
+
+      }
+    });
     return new Scaffold(
       body: new Center(
         child: new FutureBuilder<List<Summary>>(
@@ -64,7 +61,8 @@ class _Feed extends State<Feed> with TickerProviderStateMixin {
             if (snapshot.hasData) {
               return new StaggeredGridView.countBuilder(
                 crossAxisCount: 100,
-                padding: const EdgeInsets.only(bottom: 58.0),
+                controller: scrollController,
+                padding: new EdgeInsets.only(bottom: 58.0, top: statusBarHeight),
                 itemCount: snapshot.data.length,
                 itemBuilder: (BuildContext context, int index) => createCardFromSummary(snapshot.data[index]),
                 staggeredTileBuilder: (int index) =>
