@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:kinoweights/ui/feed/feed.dart';
 import 'package:kinoweights/ui/logs/logs.dart';
 import 'package:kinoweights/ui/rankings/rankings.dart';
-import 'package:kinoweights/ui/settings/settings.dart';
+import 'package:kinoweights/ui/profile/profile.dart';
+import 'package:flutter/foundation.dart';
 
 class NavigationIconView {
   NavigationIconView({
@@ -82,40 +83,85 @@ class BottomNavigation extends StatefulWidget {
 class _BottomNavigationState extends State<BottomNavigation>
     with TickerProviderStateMixin {
   int _currentIndex = 0;
-  BottomNavigationBarType _type = BottomNavigationBarType.shifting;
+  bool _hideNav = false;
   List<NavigationIconView> _navigationViews;
-  
+  Animation<double> animationSize;
+  Animation<double> animationFade;
+  Animation<Offset> animationTransition;
+  AnimationController sizeController;
+  AnimationController fadeController;
+  ScrollController scrollController;
+
   @override
   void initState() {
     super.initState();
+    sizeController = new AnimationController(vsync: this, duration: new Duration(milliseconds: 200));
+    fadeController = new AnimationController(vsync: this, duration: new Duration(milliseconds: 150));
+
+    animationTransition = new Tween(
+      begin: const Offset(0.0, 1.0),
+      end: Offset.zero,
+    ).animate(
+        new CurvedAnimation(
+          parent: sizeController,
+          curve: Curves.ease,
+    ));
+
+    animationSize = new CurvedAnimation(parent: sizeController, curve: Curves.easeInOut);
+    animationFade = new CurvedAnimation(parent: fadeController, curve: Curves.linear);
+
+    sizeController.forward();
+    fadeController.forward();
+    scrollController = new ScrollController()..addListener((){
+      print(scrollController.position.userScrollDirection.toString());
+      if(scrollController.position.userScrollDirection.toString() == "ScrollDirection.reverse"){
+        if(!_hideNav){
+          setState(() {
+            _hideNav = true;
+            fadeController.reverse().then((_){
+              sizeController.reverse();
+            });
+          });
+        }
+      }else if(scrollController.position.userScrollDirection.toString() == "ScrollDirection.forward"){
+        if(_hideNav){
+          setState(() {
+            _hideNav = false;
+            sizeController.forward().then((_){
+              fadeController.forward();
+            });
+          });
+        }
+      }
+    });
     _navigationViews = <NavigationIconView>[
       new NavigationIconView(
         icon: const Icon(Icons.contacts),
         title: 'Community',
         color: Colors.deepPurple,
         vsync: this,
-        content: new Feed(color: Colors.deepPurple)
+        content: new Feed(color: Colors.deepPurple, scrollController: scrollController)
       ),
       new NavigationIconView(
         icon: new Icon(Icons.assignment),
         title: 'Logs',
         color: Colors.deepOrange,
         vsync: this,
-        content: new Logs(color: Colors.deepOrange)
+        content: new Logs()
       ),
       new NavigationIconView(
         icon: const Icon(const IconData(0xe99e, fontFamily: 'icomoon')),
-        title: 'Personal Records',
+        title: 'Records',
         color: Colors.pink,
         vsync: this,
         content: new Rankings(color: Colors.pink)
       ),
       new NavigationIconView(
-        icon: const Icon(Icons.settings),
-        title: 'Settings',
+        icon: const Icon(Icons.account_circle),
+        title: 'Profile',
         color: Colors.green,
         vsync: this,
-        content: new Settings(color: Colors.green)
+        content: new Profile()
       )
     ];
 
@@ -140,12 +186,13 @@ class _BottomNavigationState extends State<BottomNavigation>
 
   @override
   Widget build(BuildContext context) {
+
     final BottomNavigationBar botNavBar = new BottomNavigationBar(
       items: _navigationViews
           .map((NavigationIconView navigationView) => navigationView.item)
           .toList(),
       currentIndex: _currentIndex,
-      type: _type,
+      type: BottomNavigationBarType.fixed,
       onTap: (int index) {
         setState(() {
           _navigationViews[_currentIndex].controller.reverse();
@@ -157,7 +204,11 @@ class _BottomNavigationState extends State<BottomNavigation>
 
     return new Scaffold(
       body: _navigationViews[_currentIndex]._content,
-      bottomNavigationBar: botNavBar,
+      bottomNavigationBar: new SizeTransition(
+            sizeFactor: animationSize,
+            child: new FadeTransition(opacity: animationFade, child: botNavBar,)
+        ),
     );
   }
+
 }

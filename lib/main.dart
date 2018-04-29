@@ -15,6 +15,11 @@ class Routes {
   Routes() {
     runApp(new MaterialApp(
       title: "Kinoweights",
+      theme: new ThemeData(
+        primaryColor: Colors.deepPurple,
+        accentColor: Colors.greenAccent,
+        brightness: Brightness.light,
+      ),
       debugShowCheckedModeBanner: false,
       home: new Splash(),
       onGenerateRoute: (RouteSettings settings) {

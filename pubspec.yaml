@@ -17,6 +17,8 @@ dependencies:
   path: any
   collection: any
   firebase_admob: '^0.5.2'
+  transparent_image: "^0.1.0"
+  flutter_calendar: "^0.0.1"
 
 dev_dependencies:
   flutter_test:

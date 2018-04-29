@@ -5,16 +5,19 @@ import 'package:kinoweights/data/entities/workout.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:firebase_admob/firebase_admob.dart';
 import 'package:kinoweights/apikeys.dart' show ADMOB_KEY;
+import 'package:transparent_image/transparent_image.dart';
 
 class Feed extends StatefulWidget {
-  Feed({Key key, this.color}) : super(key: key);
+  Feed({Key key, this.color, this.scrollController}) : super(key: key);
   final Color color;
+  final ScrollController scrollController;
   @override
-  _Feed createState() => new _Feed();
+  _Feed createState() => new _Feed(scrollController: scrollController);
 }
 
 class _Feed extends State<Feed> with TickerProviderStateMixin {
-
+  final ScrollController scrollController;
+  _Feed({this.scrollController});
   var communityApi = new CommunityApi();
 
   static final MobileAdTargetingInfo targetingInfo = MobileAdTargetingInfo(
@@ -47,12 +50,9 @@ class _Feed extends State<Feed> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
-    final ScrollController scrollController = new ScrollController();
-    scrollController.addListener((){
-      if(scrollController.position.axisDirection == AxisDirection.down){
-
-      }
-    });
+    bannerAd
+      ..load();
+      //..show(anchorOffset: 56.0);
     return new Scaffold(
       body: new Center(
         child: new FutureBuilder<List<Summary>>(
@@ -118,12 +118,14 @@ class _Feed extends State<Feed> with TickerProviderStateMixin {
             ),
             new Row(
               children: <Widget>[
-                new Expanded(child:
-                  new Image.network(
-                    summary.avatar,
-                    height: 120.0,
-                    fit: BoxFit.cover,
-                  )
+                new Expanded(
+                    child: new FadeInImage.memoryNetwork(
+                      placeholder: kTransparentImage,
+                      fadeInDuration: new Duration(milliseconds: 500),
+                      height: 120.0,
+                      fit: BoxFit.cover,
+                      image: summary.avatar,
+                    ),
                 )
               ],
             ),
@@ -201,10 +203,12 @@ class _Feed extends State<Feed> with TickerProviderStateMixin {
   
   Widget getCountryFlag(String code){
     if(code != null){
-      return new Image.network(
-        "http://www.countryflags.io/" + code + "/flat/64.png", 
+      return new FadeInImage.memoryNetwork(
+        placeholder: kTransparentImage,
+        fadeInDuration: new Duration(milliseconds: 500),
         height: 20.0,
         alignment: Alignment.topRight,
+        image: "http://www.countryflags.io/" + code + "/flat/64.png",
       );
     }else{
       return new Container();

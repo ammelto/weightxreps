@@ -5,7 +5,7 @@ import 'dart:async';
 class StaggerAnimation extends StatelessWidget {
   final communityApi = new CommunityApi();
   StaggerAnimation({Key key, this.buttonController, this.user, this.pass})
-      : buttonSqueezeanimation = new Tween(
+      : buttonSqueezeAnimation = new Tween(
     begin: 320.0,
     end: 70.0,
   )
@@ -18,7 +18,7 @@ class StaggerAnimation extends StatelessWidget {
       ),
     ),
   ),
-        buttomZoomOut = new Tween(
+        buttonZoomOut = new Tween(
           begin: 70.0,
           end: 70.0,
         )
@@ -52,32 +52,32 @@ class StaggerAnimation extends StatelessWidget {
   final String user;
   final String pass;
   final Animation<EdgeInsets> containerCircleAnimation;
-  final Animation buttonSqueezeanimation;
-  final Animation buttomZoomOut;
+  final Animation buttonSqueezeAnimation;
+  final Animation buttonZoomOut;
 
   Widget _buildAnimation(BuildContext context, Widget child) {
     return new Padding(
-      padding: buttomZoomOut.value == 70
+      padding: buttonZoomOut.value == 70
           ? const EdgeInsets.only(bottom: 50.0)
           : containerCircleAnimation.value,
       child: new InkWell(
           child: new Hero(
             tag: "fade",
-            child: buttomZoomOut.value <= 300
+            child: buttonZoomOut.value <= 300
                 ? new Container(
-                width: buttomZoomOut.value == 70
-                    ? buttonSqueezeanimation.value
-                    : buttomZoomOut.value,
+                width: buttonZoomOut.value == 70
+                    ? buttonSqueezeAnimation.value
+                    : buttonZoomOut.value,
                 height:
-                buttomZoomOut.value == 70 ? 60.0 : buttomZoomOut.value,
+                buttonZoomOut.value == 70 ? 60.0 : buttonZoomOut.value,
                 alignment: FractionalOffset.center,
                 decoration: new BoxDecoration(
                   color: const Color.fromRGBO(247, 64, 106, 1.0),
-                  borderRadius: buttomZoomOut.value < 400
+                  borderRadius: buttonZoomOut.value < 400
                       ? new BorderRadius.all(const Radius.circular(30.0))
                       : new BorderRadius.all(const Radius.circular(0.0)),
                 ),
-                child: buttonSqueezeanimation.value > 75.0
+                child: buttonSqueezeAnimation.value > 75.0
                     ? new Text(
                   "Sign In",
                   style: new TextStyle(
@@ -87,7 +87,7 @@ class StaggerAnimation extends StatelessWidget {
                     letterSpacing: 0.3,
                   ),
                 )
-                    : buttomZoomOut.value < 300.0
+                    : buttonZoomOut.value < 300.0
                     ? new CircularProgressIndicator(
                   value: null,
                   strokeWidth: 1.0,
@@ -96,10 +96,10 @@ class StaggerAnimation extends StatelessWidget {
                 )
                     : null)
                 : new Container(
-              width: buttomZoomOut.value,
-              height: buttomZoomOut.value,
+              width: buttonZoomOut.value,
+              height: buttonZoomOut.value,
               decoration: new BoxDecoration(
-                shape: buttomZoomOut.value < 500
+                shape: buttonZoomOut.value < 500
                     ? BoxShape.circle
                     : BoxShape.rectangle,
                 color: const Color.fromRGBO(247, 64, 106, 1.0),
@@ -113,8 +113,8 @@ class StaggerAnimation extends StatelessWidget {
   Widget build(BuildContext context) {
     buttonController.forward();
     buttonController.addListener(() {
-      print("VAL $buttomZoomOut");
-      if(buttomZoomOut.isCompleted && buttonController.status != AnimationStatus.reverse){
+      print("VAL $buttonZoomOut");
+      if(buttonZoomOut.isCompleted && buttonController.status != AnimationStatus.reverse){
         buttonController.stop(canceled: false);
         communityApi.login(user, pass).then((bool isSuccess) {
           if(isSuccess){
