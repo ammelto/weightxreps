@@ -66,11 +66,12 @@ class _Logs extends State<Logs> with TickerProviderStateMixin {
   ScrollController controller = new ScrollController();
   LinkedHashMap<int, Queue<Widget>> scrollViewsLists = new LinkedHashMap<int, Queue<Widget>>();
   int currentYear = 0;
-  int jumpTo = 0;
   double posTop;
   double posBot;
   double statusBarHeight;
   bool addDaysToStart = false;
+  bool fixedHeader = false;
+  bool skipRender = false;
 
   @override
   void initState() {
@@ -98,10 +99,17 @@ class _Logs extends State<Logs> with TickerProviderStateMixin {
               }else{
                 dayLazyLoadReverse = new DateTime(dayLazyLoadReverse.year, dayLazyLoadReverse.month - 1, 1);
               }
-              //controller.jumpTo(60.0 * 30.0);
+              controller.jumpTo(60.0 * 30.0);
             });
           }
         }
+      }
+
+      if(fixedHeader){
+        setState(() {
+          fixedHeader = false;
+          skipRender = true;
+        });
       }
 
       if(posTop != null && controller.position.extentBefore - 120.0 - (statusBarHeight * 2) > posTop){
@@ -109,17 +117,14 @@ class _Logs extends State<Logs> with TickerProviderStateMixin {
           posBot = posTop;
           posTop = null;
           currentYear++;
-          print("TRUE");
         });
       }else if(posBot != null && controller.position.extentBefore - 120.0 - (statusBarHeight * 2) < posBot){
         setState(() {
           posBot = null;
           currentYear--;
-          print("TRUE");
         });
       }
 
-      print("extent " + controller.position.extentBefore.toString() + " pos" + posTop.toString() + " " + posBot.toString());
     });
   }
 
@@ -184,12 +189,13 @@ class _Logs extends State<Logs> with TickerProviderStateMixin {
 
   Widget generateDayScroller(){
 
-    if(addDaysToStart){
+    if(addDaysToStart && !skipRender){
       scrollViewsLists.putIfAbsent(dayLazyLoadReverse.year, () => new Queue());
-      Queue<Widget> days = scrollViewsLists.remove(dayLazyLoadForward.year);
+      Queue<Widget> days = scrollViewsLists.remove(dayLazyLoadReverse.year);
 
       DateTime dateToCompare = new DateTime(dayLazyLoadReverse.year,dayLazyLoadReverse.month + 1,1);
       dateToCompare = dateToCompare.add(new Duration(days: -1));
+      double jumpTo = 120.0;
 
       while(dateToCompare.month == dayLazyLoadReverse.month){
         if(dateToCompare.day == selectedDay.day && dateToCompare.month == selectedDay.month && dateToCompare.year == selectedDay.year){
@@ -197,13 +203,15 @@ class _Logs extends State<Logs> with TickerProviderStateMixin {
         }else{
           days.addFirst(getTileForDate(dateToCompare.day.toString(), false, false, dateToCompare, CalendarStates.day));
         }
+        jumpTo = jumpTo + 60.0;
         dateToCompare = dateToCompare.add(new Duration(days: -1));
       }
 
+      fixedHeader = true;
       days.addFirst(getTileForDate(months[dayLazyLoadReverse.month - 1], false, true, yearToBrowse, CalendarStates.month));
 
-      scrollViewsLists.putIfAbsent(yearToBrowse.year, () => days);
-    }else{
+      scrollViewsLists.putIfAbsent(dayLazyLoadReverse.year, () => days);
+    }else if(!skipRender){
       scrollViewsLists.putIfAbsent(dayLazyLoadForward.year, () => new Queue());
       Queue<Widget> days = scrollViewsLists.remove(dayLazyLoadForward.year);
 
@@ -218,7 +226,9 @@ class _Logs extends State<Logs> with TickerProviderStateMixin {
         }
         dateToCompare = dateToCompare.add(new Duration(days: 1));
       }
-      scrollViewsLists.putIfAbsent(yearToBrowse.year, () => days);
+      scrollViewsLists.putIfAbsent(dayLazyLoadForward.year, () => days);
+    }else{
+      skipRender = false;
     }
 
     return new CustomScrollView(
@@ -229,34 +239,38 @@ class _Logs extends State<Logs> with TickerProviderStateMixin {
 
   List<Widget> squashList(){
     List<Widget> scrollList = new List();
-
     scrollList.add(
         new SliverAppBar(
           actions: <Widget>[
             getTileForDate(currentYear.toString() , false, true, yearToBrowse, CalendarStates.year, true)
           ],
           floating: true,
+          snap: true,
+          pinned: fixedHeader,
           backgroundColor: Theme.of(context).accentColor,
         ));
 
-    scrollViewsLists.forEach((year, list) {
+    var sortedKeys = scrollViewsLists.keys.toList()..sort();
+
+    sortedKeys.forEach( (year) {
       if(currentYear != year){
         if(year > currentYear) posTop = (scrollViewsLists[year - 1].length) * 60.0;
         scrollList.add(
-            new SliverAppBar(
-              actions: <Widget>[
-                getTileForDate(year.toString(), false, true, yearToBrowse, CalendarStates.year, true)
-              ],
-              floating: false,
-              backgroundColor: Theme.of(context).accentColor,
-            ));
+        new SliverAppBar(
+          actions: <Widget>[
+            getTileForDate(year.toString(), false, true, yearToBrowse, CalendarStates.year, true)
+          ],
+          floating: false,
+          backgroundColor: Theme.of(context).accentColor,
+          ));
       }
-      scrollList.add(
-        new SliverGrid.count(
-        crossAxisCount: 1,
-        children: list.toList(),
+        scrollList.add(
+          new SliverGrid.count(
+          crossAxisCount: 1,
+          children: scrollViewsLists[year].toList(),
       ));
     });
+
 
     return scrollList;
   }
